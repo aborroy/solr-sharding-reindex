@@ -1,0 +1,58 @@
+# Using version 2 as 3 does not support resource constraint options (cpu_*, mem_* limits) for non swarm mode in Compose
+version: "2"
+
+services:
+    solr6indexer:
+        build:
+          context: ./search
+          args:
+            SEARCH_TAG: ${SEARCH_TAG}
+            SOLR_HOSTNAME: solr6indexer
+            ALFRESCO_HOSTNAME: alfresco
+            NUM_SHARDS: "2"
+            SHARD_ID: "0"
+            SHARDING_METHOD: DB_ID
+        mem_limit: 1200m
+        environment:
+            #Solr needs to know how to register itself with Alfresco
+            SOLR_ALFRESCO_HOST: "alfresco"
+            SOLR_ALFRESCO_PORT: "8080"
+            ALFRESCO_SECURE_COMMS: none
+            #Alfresco needs to know how to call solr
+            SOLR_SOLR_HOST: "solr6indexer"
+            SOLR_SOLR_PORT: "8983"
+            #Create the default alfresco and archive cores
+            SOLR_CREATE_ALFRESCO_DEFAULTS: "alfresco,archive"
+            SOLR_JAVA_MEM: "-Xms1g -Xmx1g"
+        ports:
+            - 8183:8983
+
+    solr62indexer:
+        build:
+          context: ./search
+          args:
+            SEARCH_TAG: ${SEARCH_TAG}
+            SOLR_HOSTNAME: solr62indexer
+            ALFRESCO_HOSTNAME: alfresco
+            NUM_SHARDS: "2"
+            SHARD_ID: "1"
+            SHARDING_METHOD: DB_ID
+        mem_limit: 1200m
+        environment:
+            #Solr needs to know how to register itself with Alfresco
+            SOLR_ALFRESCO_HOST: "alfresco"
+            SOLR_ALFRESCO_PORT: "8080"
+            ALFRESCO_SECURE_COMMS: none
+            #Alfresco needs to know how to call solr
+            SOLR_SOLR_HOST: "solr62indexer"
+            SOLR_SOLR_PORT: "8983"
+            #Create the default alfresco and archive cores
+            SOLR_CREATE_ALFRESCO_DEFAULTS: "alfresco,archive"
+            SOLR_JAVA_MEM: "-Xms1g -Xmx1g"
+        ports:
+            - 8184:8983
+
+networks:
+   default:
+      external:
+         name: shared-network
